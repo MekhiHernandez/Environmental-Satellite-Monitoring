@@ -4,6 +4,8 @@ import requests
 import geopandas as gpd
 from geemap.coreutils import geojson_to_ee
 
+from shapely.geometry import box
+
 ee.Authenticate()
 ee.Initialize(project='mimetic-sweep-337316')
 
@@ -56,15 +58,35 @@ def fetch_communities(region: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     peru = gpd.read_file(
         shp,
         where="iso_code LIKE 'PER%'",
-        columns=['iso_code', 'name', 'ethncty_1', 'doc_status', 'form_rec', 'data_src'],
+        columns=['iso_code', 'landmark_i', 'name', 'ethncty_1', 'doc_status', 'form_rec', 'data_src'],
     )
+    peru = peru.rename(columns={'landmark_i':'community_id'})
     rg_adj = region.to_crs(peru.crs)
     communities = peru[peru.intersects(rg_adj.union_all())]
     communities['geometry'] = communities.geometry.force_2d()
     return communities.to_crs(4326)
 
-def build_community_aois(communities, half_width_m=10000):
-    pass
+def build_community_aois(communities: gpd.GeoDataFrame,
+                         buffer_m: int = 5000) -> gpd.GeoDataFrame:
+    utm = communities.to_crs(32719)
+    squares = []
+
+    for geom in utm.geometry:
+        minx, miny, maxx, maxy = geom.bounds
+        cx, cy = (minx + maxx) / 2, (miny + maxy) / 2
+        half = max(maxx - minx, maxy - miny) / 2 + buffer_m
+        squares.append(box(cx - half, cy - half, cx + half, cy + half))
+
+    aois = gpd.GeoDataFrame(
+        {
+            'community_id': utm['community_id'].values,
+            'name': utm['name'].values,
+            'buffer_m': buffer_m,
+        },
+        geometry = squares,
+        crs = 32719
+    )
+    return aois.to_crs(4326)
 
 def build_region_grid(region, size_m=20000):
     pass
