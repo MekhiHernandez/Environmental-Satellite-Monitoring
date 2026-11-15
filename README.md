@@ -1,5 +1,17 @@
 # EnvironmentalSatelliteMonitoring
-Satellite monitoring of environmental changes (mining, deforestation, fires) surrounding indigenous communities in Madre de Dios in the Peruvian Amazon
+Satellite monitoring of environmental changes (gold mining, deforestation, fires) surrounding indigenous communities in Madre de Dios, Peru. The project uses Sentinel-2 imagery from Google Earth Engine to map changes over time, with the goal of training a UNet classifier on Sentinel 1 & 2 images to detect mining activity.
+
+### Goals
+- Identify regions of indigenous communities and build areas of interest around each one (territory & buffer)
+- Produce cloud-free visible light composite images to track changes year over year
+- Retrieve radar images from Sentinel-1 to test change detection even through cloud cover
+- Train and validate a classifier to detect mining
+- Summarize changes near each community
+
+### Study Area
+The area of study is the departament of Madre de Dios, Peru. Madre de Dios covers ~84,000 km<sup>2</sup>, which is covered by 22 Sentinel-2 tiles.
+//
+There are 37 indigenous community territories within this area.
 
 ### Resources:
 Used [geojson.io](geojson.io) to identify coordinate regions for AOIs (areas of interest)
