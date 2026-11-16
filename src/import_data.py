@@ -88,22 +88,33 @@ def build_community_aois(communities: gpd.GeoDataFrame,
     )
     return aois.to_crs(4326)
 
-def build_region_grid(region, size_m=20000):
-    pass
+def build_region_grid(region: gpd.GeoDataFrame, size_m: int = 20000) -> gpd.GeoDataFrame:
+    utm = region.to_crs(32719)
+    area = utm.union_all()
+    minx, miny, maxx, maxy = area.bounds
 
-coords = geoJSON['features'][0]['geometry']['coordinates']
-aoi = ee.Geometry.Polygon(coords)
+    start_x = math.floor(minx / size_m) * size_m
+    start_y = math.floor(miny / size_m) * size_m
+    n_cols = math.ceil((maxx - start_x) / size_m)
+    n_rows = math.ceil((maxy - start_y) / size_m)
 
-datapoint = (
-    ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
-    .filterBounds(aoi)
-    .filterDate('2020-01-01', '2020-03-07')
-    .sort('CLOUDY_PIXEL_PERCENTAGE')
-    .first()
-    .clip(aoi.bounds())
-)
+    cells = []
+    for row in range(n_rows):
+        for col in range(n_cols):
+            x, y = start_x + col * size_m, start_y + row * size_m
+            cell = box(x, y, x+size_m, y+size_m)
 
-vis_params = {'bands': ['B4','B3','B2'], 'min': 0, 'max': 3000}
+            if cell.intersects(area):
+                cells.append({
+                    'grid_id': f'r{row:02d}_c{col:02d}',
+                    'row': row,
+                    'col': col,
+                    'size_m': size_m,
+                    'frac_in_region': round(cell.intersection(area).area / cell.area, 3),
+                    'geometry': cell,
+                })
+    grid = gpd.GeoDataFrame(cells, crs=32719)
+    return grid.to_crs(4326)
 
 def get_image(region, start_date, end_date, collection='COPERNICUS/S2_SR_HARMONIZED'):
     datapoint = (ee.ImageCollection(collection)
