@@ -2,50 +2,12 @@ import ee
 import geemap
 import requests
 import geopandas as gpd
-from geemap.coreutils import geojson_to_ee
+import math
 
 from shapely.geometry import box
 
 ee.Authenticate()
 ee.Initialize(project='mimetic-sweep-337316')
-
-#identify area of interest with geojson.io
-geoJSON = {
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {},
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -71.71342120862744,
-              -11.832282101257931
-            ],
-            [
-              -71.06758357416118,
-              -11.691345110150777
-            ],
-            [
-              -70.9563894019771,
-              -12.173073910824613
-            ],
-            [
-              -71.59795481733642,
-              -12.313251644788807
-            ],
-            [
-              -71.71342120862744,
-              -11.832282101257931
-            ]
-          ]
-        ]
-      }
-    }
-  ]
-}
 
 def fetch_region() -> gpd.GeoDataFrame:
     mdd = (ee.FeatureCollection('FAO/GAUL/2025/level1')
