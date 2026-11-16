@@ -88,7 +88,7 @@ def get_image(region, start_date, end_date, collection='COPERNICUS/S2_SR_HARMONI
     )
     return datapoint
 
-def save_image(image, region, filename, vis_params=vis_params, dimensions=1024):
+def save_image(image, region, filename, vis_params={'bands': ['B4','B3','B2'], 'min': 0, 'max': 3000}, dimensions=1024):
     url = image.getThumbURL({
         **vis_params,
         'region': region,
