@@ -1,3 +1,10 @@
+"""
+Fetch region boundary, community boundaries, and calculate square areas of interest
+around each community, and a grid that fully covers the Madre de Dios region for 
+classifier training later
+"""
+
+
 import ee
 import geemap
 import requests
