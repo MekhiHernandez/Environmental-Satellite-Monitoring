@@ -111,13 +111,19 @@ def save_image(image, region, filename, vis_params={'bands': ['B4','B3','B2'], '
 
 
 if __name__ == "__main__":
-    region = fetch_region()
-    print('region rows:', len(region), '| crs:', region.crs)
+    gpkg = 'data/mdd_monitoring.gpkg'
 
+    region = fetch_region()
     communities = fetch_communities(region)
-    print('communities:', len(communities), '| crs:', communities.crs)
-    print('any 3D shapes left:', communities.geometry.has_z.any())
-    print(communities[['name', 'ethncty_1']].head())
+    community_aois = build_community_aois(communities)
+    grid = build_region_grid(region)
+
+    region.to_file(gpkg, layer='region', driver='GPKG')
+    communities.to_file(gpkg, layer='communities', driver='GPKG')
+    community_aois.to_file(gpkg, layer='community_aois', driver='GPKG')
+    grid.to_file(gpkg, layer='region_grid', driver='GPKG')
+
+    print(gpd.list_layers(gpkg))
 
 
 
