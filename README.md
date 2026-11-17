@@ -31,3 +31,7 @@ Used [geojson.io](geojson.io) to identify coordinate regions for AOIs (areas of 
 Last update: June 2026
 CC BY-SA 4.0
 
+[GeoBosques](https://geobosques.minam.gob.pe/geobosque/view/index.php) Deforestation alert data provided by the Peruvian ministry of the environment
+
+[Amazon Mining Watch](https://amazonminingwatch.org/en/about) MAAP's amazon mining watch, complete with data available for download and methodology on how mining is detected
+
