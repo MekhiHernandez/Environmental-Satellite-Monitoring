@@ -35,8 +35,27 @@ def fetch_communities(region: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     communities['geometry'] = communities.geometry.force_2d()
     return communities.to_crs(4326)
 
+def fetch_communities_2024(unify_by_name = True) -> gpd.GeoDataFrame:
+    shp = 'data/Comunidades_Nativas_2024/Comunidades_Nativas_2024.shp'
+
+    keep_columns=(['OBJECTID', 'PROVINCIA', 'DISTRITO', 'COMUNIDAD', 'FAMILIA', 'GRUPO_ETNI',
+                   'RIO', 'RESOL_ADJU', 'FECHA_ADJU', 'NRO_TITULO', 'FECHA_TITU', 'AREA_SIG_h',
+                   'SITUACION', 'OTRAS_OBSE', 'geometry'])
+    g = gpd.read_file(shp, columns = keep_columns)
+
+    g = g[g.geometry.notna()]
+    g['geometry'] = g.geometry.make_valid()
+    g = g.rename(columns={'COMUNIDAD': 'name', 'AREA_SIG_h': 'area_ha'})
+    g['community_id'] = [f'CN{i:03d}' for i in range(len(g))]
+
+    if unify_by_name:
+        g=g.dissolve(by='name').reset_index()
+
+    return g
+
+
 def build_community_aois(communities: gpd.GeoDataFrame,
-                         buffer_m: int = 5000) -> gpd.GeoDataFrame:
+                         buffer_m: int = 500) -> gpd.GeoDataFrame:
     utm = communities.to_crs(32719)
     squares = []
 
@@ -117,10 +136,14 @@ if __name__ == "__main__":
     communities = fetch_communities(region)
     community_aois = build_community_aois(communities)
     grid = build_region_grid(region)
+    communities_24 = fetch_communities_2024()
+    community_aois_24 = build_community_aois(communities_24)
 
     region.to_file(gpkg, layer='region', driver='GPKG')
     communities.to_file(gpkg, layer='communities', driver='GPKG')
+    communities_24.to_file(gpkg, layer='communities_24', driver='GPKG')
     community_aois.to_file(gpkg, layer='community_aois', driver='GPKG')
+    community_aois_24.to_file(gpkg, layer='community_aois_24', driver='GPKG')
     grid.to_file(gpkg, layer='region_grid', driver='GPKG')
 
     print(gpd.list_layers(gpkg))
