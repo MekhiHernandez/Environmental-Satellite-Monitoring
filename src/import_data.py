@@ -7,7 +7,6 @@ classifier training later
 
 import ee
 import geemap
-import requests
 import geopandas as gpd
 import math
 
@@ -103,31 +102,6 @@ def build_region_grid(region: gpd.GeoDataFrame, size_m: int = 20000) -> gpd.GeoD
                 })
     grid = gpd.GeoDataFrame(cells, crs=32719)
     return grid.to_crs(4326)
-
-def get_image(region, start_date, end_date, collection='COPERNICUS/S2_SR_HARMONIZED'):
-    datapoint = (ee.ImageCollection(collection)
-        .filterBounds(region)
-        .filterDate(start_date, end_date)
-        .sort('CLOUDY_PIXEL_PERCENTAGE')
-        .first()
-        .clip(region.bounds())
-    )
-    return datapoint
-
-def save_image(image, region, filename, vis_params={'bands': ['B4','B3','B2'], 'min': 0, 'max': 3000}, dimensions=1024):
-    url = image.getThumbURL({
-        **vis_params,
-        'region': region,
-        'dimensions': dimensions,
-        'format': 'png'
-    })
-
-    response = requests.get(url)
-    response.raise_for_status()
-
-    with open(f'data/{filename}', 'wb') as f:
-        f.write(response.content)
-
 
 if __name__ == "__main__":
     gpkg = 'data/mdd_monitoring.gpkg'
