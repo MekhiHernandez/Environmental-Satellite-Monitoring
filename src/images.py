@@ -71,13 +71,14 @@ def save_image(image, region, path, vis_params={'bands': ['B4','B3','B2'], 'min'
 
 def save_community_timeseries(aois: gpd.GeoDataFrame, communities: gpd.GeoDataFrame,
                               years: range, out_dir: str = 'data/images',
-                              dimensions: int = 1024) -> list[str]:
+                              dimensions: int = 1024, draw_boundary: bool = True) -> list[str]:
     """
     Save one dry-season composite per community per year, with the community
-    boundary drawn on top. Skips images that already exist. Returns the paths
-    that failed so they can be retried.
+    boundary drawn on top (or without it if draw_boundary is False). Skips images
+    that already exist. Returns the paths that failed so they can be retried.
     """
     failed = []
+    prefix = 'bound_comm' if draw_boundary else 'raw_comm'
 
     for i in range(len(aois)):
         one = aois.iloc[[i]]
@@ -89,7 +90,7 @@ def save_community_timeseries(aois: gpd.GeoDataFrame, communities: gpd.GeoDataFr
         outline = boundary.style(color='yellow', fillColor='00000000', width=2)
 
         for year in years:
-            path = Path(out_dir) / folder / f'bound_comm_{year}.png'
+            path = Path(out_dir) / folder / f'{prefix}_{year}.png'
             if path.exists():
                 continue
 
@@ -97,7 +98,9 @@ def save_community_timeseries(aois: gpd.GeoDataFrame, communities: gpd.GeoDataFr
             try:
                 img = get_composite(aoi, year)
                 rgb = img.visualize(bands=['B4', 'B3', 'B2'], min=0, max=3000)
-                save_image(rgb.blend(outline), aoi, path, vis_params={}, dimensions=dimensions)
+                if draw_boundary:
+                    rgb = rgb.blend(outline)
+                save_image(rgb, aoi, path, vis_params={}, dimensions=dimensions)
             except Exception as e:
                 print(f'  failed: {e}')
                 failed.append(str(path))
@@ -111,5 +114,7 @@ if __name__ == "__main__":
     aois = gpd.read_file(gpkg, layer='community_aois_24')
     communities = gpd.read_file(gpkg, layer='communities_24')
 
-    failed = save_community_timeseries(aois, communities, years=range(2019, 2027))
+    years = range(2019, 2027)
+    failed = save_community_timeseries(aois, communities, years)                        # outlined
+    failed += save_community_timeseries(aois, communities, years, draw_boundary=False)  # raw
     print(f'{len(failed)} failed:', failed)
