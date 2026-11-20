@@ -9,11 +9,11 @@ Satellite monitoring of environmental changes (gold mining, deforestation, fires
 - Summarize changes near each community
 
 ### Checklist
-- [*] Create AOIs for 2024 update indigenous communities
-- [] Pull alerts from GeoBosque
-- [] Pull sentinel-2 images for each AOI across the years
-- [] Create map of recent alerts
-- [] Get mining concessions from the state
+- [x] Create AOIs for 2024 update indigenous communities
+- [x] Pull alerts from GeoBosque
+- [x] Pull sentinel-2 images for each AOI across the years
+- [x] Create map of recent alerts
+- [x] Get mining concessions from the state
 - [] Pull landsat data for older comparisons
 
 ### Study Area
