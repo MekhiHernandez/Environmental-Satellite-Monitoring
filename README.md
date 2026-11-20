@@ -36,3 +36,5 @@ CC BY-SA 4.0
 
 [Amazon Mining Watch](https://amazonminingwatch.org/en/about) MAAP's amazon mining watch, complete with data available for download and methodology on how mining is detected
 
+[FENAMAD's Community Data](https://fenamad.com.pe/about-us/) FENAMAD gave me 2024 boundaries for their included communities, which are referred to as the communities_2024 data in this project. To replicate analysis without this data use the landmark community boundaries instead.
+
